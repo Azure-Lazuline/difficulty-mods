@@ -8,11 +8,11 @@
                 "name": "Received Damage",
                 "description": "Scales the amount of damage you receive from enemies."
             },
-            "difficultymods-enemy-hp2": {
+            "difficultymods-enemy-hp3": {
                 "name": "Enemy HP",
                 "description": "Scales the hitpoints and break meters of all enemies (including bosses)."
             },
-            "difficultymods-attack-freq2": {
+            "difficultymods-attack-freq3": {
                 "name": "Enemy Speed",
                 "description": "Scales how often enemies attack and the speed they recover from stun/break."
             },

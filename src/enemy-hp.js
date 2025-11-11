@@ -27,7 +27,7 @@ sc.CombatParams.inject({
 					this.combatant.difficultyModsScaledHP = 1.0;
 					if(!sc.DifficultyModsIgnoreEnemies.has(name))
 					{
-						this.combatant.difficultyModsScaledHP = sc.options.get("difficultymods-enemy-hp2");
+						this.combatant.difficultyModsScaledHP = sc.options.get("difficultymods-enemy-hp3");
 						//also scale currentHP, since the arena's level-scaling is odd which makes this necessary there
 						this.currentHp = Math.round(this.currentHp * this.combatant.difficultyModsScaledHP);
 						
@@ -67,7 +67,7 @@ sc.BurnStatus.inject({
 sc.Arena.inject({
 	addScore(a, b){
 		if(a == "DAMAGE_DONE" || a == "DAMAGE_DONE_EFFECTIVE"){
-			b = Math.floor(b / sc.options.get("difficultymods-enemy-hp2"));
+			b = Math.floor(b / sc.options.get("difficultymods-enemy-hp3"));
 		}
 		return this.parent(a, b);
 	}
@@ -80,7 +80,7 @@ sc.Arena.inject({
 		this.parent();
 		var timebonus=this.runtime.bonusObjectives.find((element)=>element.type=="TIME");
 		if(timebonus != null)
-			timebonus.data._time = Math.floor(timebonus.data._time * sc.options.get("difficultymods-enemy-hp2"));
+			timebonus.data._time = Math.floor(timebonus.data._time * sc.options.get("difficultymods-enemy-hp3"));
 
 	}
 });

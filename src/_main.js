@@ -18,22 +18,19 @@ difficultymods.ENEMY_DAMAGE = {
   HIGH6: 2.5,  
 };
 difficultymods.SCALE_ENEMY_HP = {
-  LOW6: 0.7,
   LOW5: 0.75,
   LOW4: 0.8,
   LOW3: 0.85,
   LOW2: 0.9,
   LOW1: 0.95,
   NORM: 1,
-  HIGH1: 1.15,
-  HIGH2: 1.30,
-  HIGH3: 1.50,
-  HIGH4: 1.65,
-  HIGH5: 1.80,
-  HIGH6: 2.00,
+  HIGH1: 1.1,
+  HIGH2: 1.2,
+  HIGH3: 1.3,
+  HIGH4: 1.4,
+  HIGH5: 1.5,
 };
 difficultymods.ATTACK_FREQ = {
-  LOW6: 0.4,
   LOW5: 0.5,
   LOW4: 0.6,
   LOW3: 0.7,
@@ -44,8 +41,7 @@ difficultymods.ATTACK_FREQ = {
   HIGH2: 1.30,
   HIGH3: 1.50,
   HIGH4: 1.65,
-  HIGH5: 1.80,
-  HIGH6: 2.00,
+  HIGH5: 1.75
 };
 difficultymods.HEALING = {
   LOW5: 0.0,
@@ -98,23 +94,49 @@ sc.Combat.inject({
 		return sc.options.get("difficultymods-enemy-damage2");
 	}
 });
+
 sc.Combat.inject({ 
-	getAssistAttackFrequency()
+	getAssistAttackFrequency() //frequency of attacks only
 	{
-		var ret = sc.options.get("difficultymods-attack-freq2");
-		sc.newgame.hasHarderEnemies() && (ret = ret * 1.5);
-		return ret;
+		var freq = sc.options.get("difficultymods-attack-freq3");
+		sc.newgame.hasHarderEnemies() && (freq = freq * 1.5);
+		return freq;
 	}
 });
+sc.OptionModel.inject({
+	get(a, b) //frequency of attacks *and* trackers, which stacks with the above
+	{
+		var result = this.parent(a, b);
+		if (a=="assist-attack-frequency") 
+		{
+			var freq = sc.options.get("difficultymods-attack-freq3");
+			if(freq > 1) freq += (1 - freq) * 0.8; //apply less strongly (even a 20% reduction in vulnerability time is pretty massive)
+			result *= freq;
+		}
+		return result;
+	}
+});
+
 sc.GameModel.inject({ 
 	isAssistMode()
 	{
 		return this.parent()
 			|| sc.options.get("difficultymods-enemy-damage2") < 1
-			|| sc.options.get("difficultymods-enemy-hp2") < 1
-			|| sc.options.get("difficultymods-attack-freq2") < 1
+			|| sc.options.get("difficultymods-enemy-hp3") < 1
+			|| sc.options.get("difficultymods-attack-freq3") < 1
 			|| sc.options.get("difficultymods-healing2") > 1
 			|| sc.options.get("difficultymods-xp-gain2") > 1;
+	}
+});
+
+sc.CombatStatusBase.inject({
+	inflict(b, a, d){
+		var c = a.combatant;
+		if(c.party == sc.COMBATANT_PARTY.PLAYER && sc.options.get("difficultymods-enemy-damage2") > 1)
+		{
+			b *= sc.options.get("difficultymods-enemy-damage2");
+		}
+		this.parent(b, a, d);
 	}
 });
 
@@ -136,7 +158,7 @@ for (let [key, value] of Object.entries(sc.OPTIONS_DEFINITION)) {
 				hasDivider: true,
 				header: "combat"
             };
-            options["difficultymods-enemy-hp2"] = {
+            options["difficultymods-enemy-hp3"] = {
 				type: 'OBJECT_SLIDER',
 				data: difficultymods.SCALE_ENEMY_HP,
 				init: difficultymods.SCALE_ENEMY_HP.NORM,
@@ -150,7 +172,7 @@ for (let [key, value] of Object.entries(sc.OPTIONS_DEFINITION)) {
         case "assist-attack-frequency":
 			oldfreqoption = {key: key, value: value};
 
-            options["difficultymods-attack-freq2"] = {
+            options["difficultymods-attack-freq3"] = {
 				type: 'OBJECT_SLIDER',
 				data: difficultymods.ATTACK_FREQ,
 				init: difficultymods.ATTACK_FREQ.NORM,
